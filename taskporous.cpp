@@ -36,7 +36,7 @@ Real htim
 
 	Real mass = porous.mass;
 
-	Real Poly_A = 2 * MC.Decrement_M + 2 * MC.Decrement_A - 4 * MC.Decrement_T;
+	Real Poly_A = 2 * MC.Decrement_M + 2 * MC.Decrement_A - /*4 * */MC.Decrement_T;
 	Real Poly_B = 4 * MC.Decrement_T - MC.Decrement_M - 3 * MC.Decrement_A;
 	Real Poly_C = MC.Decrement_A;
 	Real elastic_compliance_total = 0.0;
