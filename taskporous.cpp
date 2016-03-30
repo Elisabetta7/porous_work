@@ -36,7 +36,7 @@ Real htim
 
 	Real mass = porous.mass;
 
-	Real Poly_A = 2 * MC.Decrement_M + 2 * MC.Decrement_A - /*4 * */MC.Decrement_T;
+	Real Poly_A = 2 * MC.Decrement_M + 2 * MC.Decrement_A - 4 * MC.Decrement_T;
 	Real Poly_B = 4 * MC.Decrement_T - MC.Decrement_M - 3 * MC.Decrement_A;
 	Real Poly_C = MC.Decrement_A;
 	Real elastic_compliance_total = 0.0;
@@ -192,6 +192,9 @@ else {
 
 				if (abs(porous.c_beam[iuz].displac_new) >= (porous.c_beam[iuz].column / 2)){
 					porous.c_beam[iuz].phoenix = 1.0;
+					printf("\n sig(2,2)=%lg", sig(2, 2));
+					printf("\n eps(2,2)=%lg", porous.c_beam[iuz].XXnew.TotalStrain(2, 2));
+					printf("\n eps(1,1)=%lg", porous.c_beam[iuz].XXnew.TotalStrain(1, 1));
 					fprintf(stderr, "\n  connected");
 					pause();
 					porous.c_beam[iuz].s33_fix = sig(2, 2);
@@ -224,6 +227,8 @@ if ((porous.c_beam[iuz].phoenix == 1.0) && (porous.c_beam[iuz].L_macro_new > por
 porous.c_beam[iuz].sig_to_control = sig(1, 1);
 porous.c_beam[iuz].sigma33 = sig(2,2);
 real sig33 = sig(2, 2);
+
+real fdshdf = porous.c_beam[iuz].XXnew.TotalStrain(1, 1);// delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	 }//end of 'iuz'
 		
 		porous.area_macro = (porous.c_beam[0].width*porous.c_beam[0].little_length)*(1 - porosity)*(-1 + porosity + porous.c_beam[0].noV) / (-1 + porous.c_beam[0].noV);
@@ -234,6 +239,6 @@ real sig33 = sig(2, 2);
 		porous.de_macro = (porous.L_macro_new_overall - porous.L_macro_old_overall) / porous.L_macro_old_overall;
 		porous.e_macro += porous.de_macro;
 		porous.stress_macro = porous.force_new / porous.area_macro;
-
+real rehtdkgl = porous.c_beam[0].XXnew.TotalStrain(1, 1);// delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		return 0;
 	}

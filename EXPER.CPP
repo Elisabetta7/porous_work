@@ -10,7 +10,7 @@
 #include "reoeq1.h"
 #include "taskporous.h"
 #include "diaproc.h"
-#define MAX_STEP_DECREASE 8
+#define MAX_STEP_DECREASE 1 // было 8
 //#define MALBUF 16 - in diaproc.h
 //extern unsigned _stklen = 30000; - defined in Module definition file "exper.def"
 
@@ -860,7 +860,7 @@ printf("\n\nInitial state13: tim=%lg tem=%lg  \n", tim, tem);
 			// !! Valid only if the applied force is constant !!
 			//	hsigma(2,2) = sigma(2,2) * heps(2,2)/(1.0 + eps(2,2));
 			//end of the correction of stress due to the decrease of the cross-section 
-			printf("\nsig(2,2)=%lg, \ne33_1=%lg", /*porous.c_beam[0].K_sig * porous.force_old*/porous.c_beam[0].sigma33*1e-6, porous.c_beam[0].XXnew.TotalStrain.C(2, 2)*1e2);
+			printf("\nsig(1,1)=%lg, \ne22_1=%lg", /*porous.c_beam[0].K_sig * porous.force_old*/porous.c_beam[0].sig_to_control*1e-6, porous.c_beam[0].XXnew.TotalStrain.C(1, 1)*1e2);
 			
 			
 		//printf("\nBefore Task_sig:i_step=%i tim=%lg",istep,tim);
@@ -907,7 +907,7 @@ printf("\n\nInitial state13: tim=%lg tem=%lg  \n", tim, tem);
 			if ((hsig_33_1>s_incr || hsig_33_2>s_incr || hsig_33_3>s_incr || hsig_33_4>s_incr || hsig_33_5>s_incr || hsig_33_6>s_incr) || (heps_33_1 >e_incr || heps_33_2>e_incr || heps_33_3>e_incr || heps_33_4>e_incr || heps_33_5>e_incr || heps_33_6>e_incr) || (hfaz_1>faz_incr && hfaz_2>faz_incr && hfaz_3>faz_incr && hfaz_4>faz_incr && hfaz_5>faz_incr && hfaz_6>faz_incr) || htim>tim_incr || htem>tem_incr)
 			{ if(idecrease_step++<MAX_STEP_DECREASE){ htim /= 2.0; good_step=0;} }
 			else if ((hsig_33_1<0.2*s_incr || hsig_33_2<0.2*s_incr || hsig_33_3<0.2*s_incr || hsig_33_4<0.2*s_incr || hsig_33_5<0.2*s_incr || hsig_33_6<0.2*s_incr) && (heps_33_1<0.2*e_incr || heps_33_2<0.2*e_incr || heps_33_3<0.2*e_incr || heps_33_4<0.2*e_incr || heps_33_5<0.2*e_incr || heps_33_6<0.2*e_incr) && (hfaz_1<0.2*faz_incr || hfaz_2<0.2*faz_incr || hfaz_3<0.2*faz_incr || hfaz_4<0.2*faz_incr || hfaz_5<0.2*faz_incr || hfaz_6<0.2*faz_incr) && htim<0.2*tim_incr && htem<0.2*tem_incr)
-			{ if(iincrease_step++<2){ htim *= 2.0; good_step=0;} }
+			{ if(iincrease_step++<0){ htim *= 2.0; good_step=0;} }//increase step was 2, not 0!!!
 
 
 			/*if(hsig_33_2>s_incr && hsig_33_2>s_incr||heps_33_2>e_incr||hfaz>faz_incr||htim>tim_incr||htem>tem_incr)
