@@ -28,6 +28,7 @@
 #define IATTEMPTMAX 10
 #define ROOT 2
 #define MAX_FORBIDDEN_TWDIR 4
+
 //#define ROOT 1.414213562
 //#define ROOT4 1.183207115
 
@@ -122,7 +123,7 @@ void Reology(
 	      ,GrainsParameters& GrPar
               ,InternalParameters &XXold
 	      ,InternalParameters &XXnew
-	       //,
+	,Real phoenix
           )
 {
 
@@ -783,6 +784,12 @@ void Reology(
       hbetp.Multiplication(hFloc_total);
       hbzph += hbetp; //includes only PHASE strain (including twinning)
 
+	  if ((phoenix == 1) || (sig(2, 2)>600e6)) {
+		  printf("\n sig(2,2)=%lg", sig(2, 2));
+		  fprintf(stderr, "\n  you are in reology after connection");
+		  //pause();
+	  }
+
       hbetp = Vrnts[isis];
       hbetp.Multiplication(hFlocmp);
       hbzmp += hbetp;
@@ -802,13 +809,15 @@ void Reology(
 
      temp= hbzphp+hbzmpp;
      temp.Multiplication(MC.ScalingFactor);
+
      XXnew.EpsUnGr[izer] = XXold.EpsUnGr[izer] + temp;
      XXnew.EpsUnGr[izer] += hbzapp;
          // !!! if heat expansion is anisotropic we must add hear
          // heat expansion strain in a grain to XXnew.EpsUnGr[zer]
-     dEPh += hbzphp;
+	 dEPh+= hbzphp;
      dEmp += hbzmpp;
      dEAP += hbzapp;
+
 
   //...........}
 
@@ -818,14 +827,19 @@ void Reology(
      //pause();
 
 
-
    XXnew.Phase = (FazaNew /= k_zer);
    dEPh.Multiplication(MC.ScalingFactor / k_zer);
    dEmp.Multiplication(MC.ScalingFactor / k_zer);
    dEAP.Multiplication(1.0 / k_zer);
+   if (sig(2, 2)>400e6){
+	   dEPh = 0.0;
+
+   }
    XXnew.PhaseStrain = XXold.PhaseStrain + dEPh;
    XXnew.mpStrain = XXold.mpStrain + dEmp;
    XXnew.PlasticStrain = XXold.PlasticStrain + dEAP;
+
+
 	XXnew.Bmean_pl_dmg/=k_zer;
 	XXnew.Fmean_pl_dmg/=k_zer;
    //----------------------
@@ -885,6 +899,7 @@ void Reology(
    // Determine Elastic strain
    XXnew.ElStrain = Komb(1.0-FazaNew, Hook(MC.YoungA, MC.PuasA, sig),
                            FazaNew, Hook(MC.YoungM, MC.PuasM, sig) );
+
    //------------------------------------------------------------------
    //Now A-rad_creep = 0.0 in the beginning of this file
    if(A_rad_creep!=0.0) hrad_strain = A_rad_creep*DeltaFluence;
@@ -1020,6 +1035,11 @@ void Reology(
  if(IAttempt==IATTEMPTMAX){
    fprintf(stderr,"\nCan not equilibrate RoGrain. ErrRo=%lgkPa\n",ErrRo*1e-3);
    //pause();
+ }
+ if ((phoenix == 1)||(sig(2,2)>411e6)) {
+	 printf("\n sig(2,2)=%lg", sig(2, 2));
+	 fprintf(stderr, "\n  you are in reology after connection");
+	//pause();
  }
  //printf("\nNumOfGrWithTwin=%u",NumOfGrWithTwin);
  //printf(" MaxRo=%lg \n "  ,MaxRoNorma)

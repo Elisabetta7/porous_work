@@ -112,7 +112,7 @@ else {
 			porous.c_beam[iuz].XXold.TotalStrain(2, 0) = 0.0;
 			porous.c_beam[iuz].XXold.TotalStrain(2, 1) = 0.0;*/
 
-					Reology(htim, porous.tem_old, porous.htem, fluence, hfluence, sig, hsig, MC, Vrnts, GrPar, porous.c_beam[iuz].XXold, porous.c_beam[iuz].XXnew);
+					Reology(htim, porous.tem_old, porous.htem, fluence, hfluence, sig, hsig, MC, Vrnts, GrPar, porous.c_beam[iuz].XXold, porous.c_beam[iuz].XXnew, porous.c_beam[iuz].phoenix );
 					porous.c_beam[iuz].heps_elastic = porous.c_beam[iuz].XXnew.TotalStrain(1, 1) - porous.c_beam[iuz].XXold.TotalStrain(1, 1);
 
 					raps = porous.c_beam[iuz].XXold.TotalStrain(1, 1);
@@ -142,7 +142,7 @@ else {
 					hsig(1, 1) = -ka*df;
 					fprintf(stderr, "\n  connect by case 2");
 					pause();
-					Reology(htim, porous.tem_old, porous.htem, fluence, hfluence, sig, hsig, MC, Vrnts, GrPar, porous.c_beam[iuz].XXold, porous.c_beam[iuz].XXnew);
+					Reology(htim, porous.tem_old, porous.htem, fluence, hfluence, sig, hsig, MC, Vrnts, GrPar, porous.c_beam[iuz].XXold, porous.c_beam[iuz].XXnew, porous.c_beam[iuz].phoenix);
 					porous.c_beam[iuz].heps_elastic = porous.c_beam[iuz].XXnew.TotalStrain(1, 1) - porous.c_beam[iuz].XXold.TotalStrain(1, 1);
 					porous.c_beam[iuz].hdisplac = 0.0;
 					porous.c_beam[iuz].displac_new = porous.c_beam[iuz].displac_old;
@@ -168,12 +168,17 @@ else {
 	  else { //if we haven't had the contact yet
 			sig(1, 1) = 0.0;
 			hsig(1, 1) = 0.0;
-			sig(2, 2) = ks * porous.force_old;
 			hsig(2, 2) = ks * df;
-			//porous.c_beam[iuz].XXold.TotalStrain(1, 1) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(1, 1) = 0.0; 
-		
-		    Reology(htim, porous.tem_old, porous.htem, fluence, hfluence, sig, hsig, MC, Vrnts, GrPar, porous.c_beam[iuz].XXold, porous.c_beam[iuz].XXnew);
+			sig(2, 2) = ks * porous.force_old + hsig(2,2);
+			
+			porous.c_beam[iuz].XXold.TotalStrain(1, 1) = 0.0; //added!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			porous.c_beam[iuz].XXold.dTotalStrain(1, 1) = 0.0;
+			porous.c_beam[iuz].XXold.UnelasticStrain(1, 1) = 0.0;
+			porous.c_beam[iuz].XXold.ElStrain(1, 1) = 0.0;
+			porous.c_beam[iuz].XXold.mpStrain(1, 1) = 0.0;
+			porous.c_beam[iuz].XXold.PhaseStrain(1, 1) = 0.0;
+
+		    Reology(htim, porous.tem_old, porous.htem, fluence, hfluence, sig, hsig, MC, Vrnts, GrPar, porous.c_beam[iuz].XXold, porous.c_beam[iuz].XXnew, porous.c_beam[iuz].phoenix);
 			printf("\n sig(2,2)<500e6 and Check destr <1: sig(2,2)=%lg", sig(2, 2));
 			porous.c_beam[iuz].heps_beam_new = porous.c_beam[iuz].XXnew.TotalStrain(2, 2) - porous.c_beam[iuz].XXold.TotalStrain(2, 2);
 			porous.c_beam[iuz].Check_destr_new = 0.0;
@@ -182,13 +187,6 @@ else {
 		    porous.c_beam[iuz].displac_new = porous.c_beam[iuz].displac_old + porous.c_beam[iuz].hdisplac;
 			porous.c_beam[iuz].L_macro_new = porous.c_beam[iuz].thickness + porous.c_beam[iuz].column - abs (porous.c_beam[iuz].displac_new);
 			porous.c_beam[iuz].XXnew.TotalStrain(1, 1) = 0.0; //added!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			//porous.c_beam[iuz].XXnew.TotalStrain(0, 0) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(0, 1) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(1, 0) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(1, 2) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(2, 1) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(2, 0) = 0.0;
-			//porous.c_beam[iuz].XXnew.TotalStrain(0, 2) = 0.0;
 
 				if (abs(porous.c_beam[iuz].displac_new) >= (porous.c_beam[iuz].column / 2)){
 					porous.c_beam[iuz].phoenix = 1.0;
@@ -204,7 +202,12 @@ else {
 					porous.c_beam[iuz].hdisplac = 0.0;
 					porous.c_beam[iuz].displac_new = porous.c_beam[iuz].displac_old;
 					porous.c_beam[iuz].L_macro_fix = porous.c_beam[iuz].L_macro_new;
-				    //porous.c_beam[iuz].XXnew.TotalStrain(1, 1) = 0.0;///&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+					porous.c_beam[iuz].XXnew.dTotalStrain(1, 1) = 0.0;
+					porous.c_beam[iuz].XXnew.UnelasticStrain(1, 1) = 0.0;
+					porous.c_beam[iuz].XXnew.ElStrain(1, 1) = 0.0;
+					porous.c_beam[iuz].XXnew.mpStrain(1, 1) = 0.0;
+					porous.c_beam[iuz].XXnew.PhaseStrain(1, 1) = 0.0;
+				    porous.c_beam[iuz].XXnew.TotalStrain(1, 1) = 0.0;///&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 																							}
 
 				if (abs(sig(2, 2)) >= Sigma_cr){

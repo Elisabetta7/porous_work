@@ -10,7 +10,7 @@
 #include "reoeq1.h"
 #include "taskporous.h"
 #include "diaproc.h"
-#define MAX_STEP_DECREASE 1 // было 8
+#define MAX_STEP_DECREASE 0 // было 8
 //#define MALBUF 16 - in diaproc.h
 //extern unsigned _stklen = 30000; - defined in Module definition file "exper.def"
 
